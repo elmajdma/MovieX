@@ -12,6 +12,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/MovieTheme">
+
+        <provider
+            android:name=".data.moviedatabase.MovieProvider"
+            android:authorities="elmajdma.movie.data.moviedatabase"
+            android:exported="false"
+            android:protectionLevel="signature"
+            android:syncable="true"/>
         <activity
             android:name=".ui.MainActivity"
             android:theme="@style/MovieTheme.NoActionBar">
