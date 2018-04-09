@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <!-- <uses-permission android:name="com.example.udacity.droidtermsexample.TERMS_READ"/> -->
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -12,13 +13,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/MovieTheme">
-
         <provider
             android:name=".data.moviedatabase.MovieProvider"
             android:authorities="elmajdma.movie.data.moviedatabase"
             android:exported="false"
             android:protectionLevel="signature"
-            android:syncable="true"/>
+            android:syncable="true" />
+
         <activity
             android:name=".ui.MainActivity"
             android:theme="@style/MovieTheme.NoActionBar">
@@ -28,7 +29,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.MovieDetailsActivity"></activity>
+        <activity
+            android:name=".ui.YoutubeActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="nosensor"
+            android:theme="@style/BlackNoTitleBarTheme" />
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
+
     </application>
 
 </manifest>

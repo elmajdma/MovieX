@@ -17,4 +17,9 @@
     <string name="drawer_item_movies_top_rated">Top Rated Movies</string>
     <string name="drawer_item_movies_popular">Popular</string>
     <string name="drawer_item_section_header_all_entrainment">All Entertainment</string>
+
+    <string name="error_player">There was an error initializing the YouTubePlayer (%1$s)</string>
+    <string name="player_error">Youtube Error</string>
+    <string name="no_reviews">No availabe Reviews</string>
+    <string name="drawer_item_favoirte">Favorite</string>
 </resources>

@@ -24,30 +24,30 @@ public class MovieProvider extends ContentProvider {
      * Builds a UriMatcher that is used to determine witch database request is being made.
      */
     public static UriMatcher buildUriMatcher(){
-        String content = MovieContract.CONTENT_AUTHORITY;
+        //String content = MovieContract.CONTENT_AUTHORITY;
 
         // All paths to the UriMatcher have a corresponding code to return
         // when a match is found (the ints above).
-        UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
-        matcher.addURI(content, MovieContract.PATH_MOVIE, MOVIE);
-        matcher.addURI(content, MovieContract.PATH_MOVIE + "/#", MOVIE_ID);
+        final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
+        matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.MovieEntry.TABLE_MOVE, MOVIE);
+        matcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.MovieEntry.TABLE_MOVE + "/#", MOVIE_ID);
         return matcher;
     }
     @Override
     public boolean onCreate() {
-        return false;
+
+        mOpenHelper = new MovieDBHelper(getContext());
+        return true;
     }
 
     @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         Cursor movieCursor;
         switch(sUriMatcher.match(uri)){
-
             case MOVIE:
-                movieCursor = db.query(
-                        MovieContract.MovieEntry.TABLE_NAME,
+                movieCursor = mOpenHelper.getReadableDatabase().query(
+                        MovieContract.MovieEntry.TABLE_MOVE,
                         projection,
                         selection,
                         selectionArgs,
@@ -57,12 +57,11 @@ public class MovieProvider extends ContentProvider {
                 );
                 break;
             case MOVIE_ID:
-                 long id = ContentUris.parseId(uri);
-                movieCursor = db.query(
-                        MovieContract.MovieEntry.TABLE_NAME,
+                movieCursor = mOpenHelper.getReadableDatabase().query(
+                        MovieContract.MovieEntry.TABLE_MOVE,
                         projection,
-                        MovieContract.MovieEntry.COLUMN_MOVIE_ID + " = ?",
-                        new String[]{String.valueOf(id)},
+                        MovieContract.MovieEntry.COLUMN_MOVIE_ID + "= ?",
+                        new String[]{String.valueOf(ContentUris.parseId(uri))},
                         null,
                         null,
                         sortOrder
@@ -84,30 +83,41 @@ public class MovieProvider extends ContentProvider {
     @Nullable
     @Override
     public String getType(@NonNull Uri uri) {
-        switch(sUriMatcher.match(uri)){
+        final int match = sUriMatcher.match(uri);
 
-            case MOVIE:
-                return MovieContract.MovieEntry.CONTENT_TYPE;
-            case MOVIE_ID:
+        switch (match) {
+            case MOVIE: {
+                return MovieContract.MovieEntry.CONTENT_DIR_TYPE;
+            }
+            case MOVIE_ID: {
                 return MovieContract.MovieEntry.CONTENT_ITEM_TYPE;
-            default:
+            }
+            default: {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
+            }
         }
-
     }
 
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        long id;
-        Uri returnUri;
-
+        Uri returnUri = null;
         switch(sUriMatcher.match(uri)){
             case MOVIE:
-                id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
-                returnUri = MovieContract.MovieEntry.buildMovieUri(id);
+                /*
+                  Add a new movie record
+                 */
+                long rowID = db.insert(MovieContract.MovieEntry.TABLE_MOVE, "", values);
+                /*
+                  If record is added successfully
+                 */
+                if (rowID > 0) {
+                    returnUri = MovieContract.MovieEntry.buildMoviessUri(rowID);
 
+                } else {
+                    throw new android.database.SQLException("Failed to insert row into: " + uri);
+                }
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -123,22 +133,25 @@ public class MovieProvider extends ContentProvider {
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        int rows; // Number of rows effected
-
-        switch(sUriMatcher.match(uri)){
+        final int match = sUriMatcher.match(uri);
+        int numDeleted;
+        switch (match) {
             case MOVIE:
-                rows = db.delete(MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
+                numDeleted = db.delete(
+                        MovieContract.MovieEntry.TABLE_MOVE, selection, selectionArgs);
+
+                break;
+            case MOVIE_ID:
+                numDeleted = db.delete(MovieContract.MovieEntry.TABLE_MOVE,
+                        MovieContract.MovieEntry.COLUMN_MOVIE_ID + " = ?",
+                        new String[]{String.valueOf(ContentUris.parseId(uri))});
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
+        getContext().getContentResolver().notifyChange(uri, null);
 
-        // Because null could delete all rows:
-        if(selection == null || rows != 0){
-            getContext().getContentResolver().notifyChange(uri, null);
-        }
-
-        return rows;
+        return numDeleted;
 
     }
 
@@ -149,7 +162,7 @@ public class MovieProvider extends ContentProvider {
 
         switch(sUriMatcher.match(uri)){
             case MOVIE:
-                rows = db.update(MovieContract.MovieEntry.TABLE_NAME, values, selection, selectionArgs);
+                rows = db.update(MovieContract.MovieEntry.TABLE_MOVE, values, selection, selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);

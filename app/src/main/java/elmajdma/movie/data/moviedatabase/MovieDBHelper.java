@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 
 public class MovieDBHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String DATABASE_NAME = "movieList.db";
 
 
@@ -23,18 +23,26 @@ public class MovieDBHelper extends SQLiteOpenHelper {
         addMovieTable(db);
     }
 
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
-    }
 
     private void addMovieTable(SQLiteDatabase db) {
         db.execSQL(
-                "CREATE TABLE " + MovieContract.MovieEntry.TABLE_NAME + " (" +
-                        MovieContract.MovieEntry._ID + " INTEGER PRIMARY KEY, " +
+                "CREATE TABLE " + MovieContract.MovieEntry.TABLE_MOVE + " (" +
+                        // MovieContract.MovieEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         MovieContract.MovieEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
-                        MovieContract.MovieEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL" +
-                        ");"
+                        MovieContract.MovieEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL," +
+                        MovieContract.MovieEntry.COLUMN_MOVIE_POSTER + " BLOB NOT NULL," +
+                        MovieContract.MovieEntry.COLUMN_MOVIE_DATE + " TEXT NOT NULL," +
+                        MovieContract.MovieEntry.COLUMN_MOVIE_RATE + " TEXT NOT NULL," +
+                        MovieContract.MovieEntry.COLUMN_MOVIE_REVIEW + " TEXT NOT NULL," +
+                        " UNIQUE (" + MovieContract.MovieEntry.COLUMN_TITLE + ") ON CONFLICT REPLACE);"
+
         );
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.MovieEntry.TABLE_MOVE);
+        onCreate(sqLiteDatabase);
     }
 }

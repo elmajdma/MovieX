@@ -1,28 +1,26 @@
 package elmajdma.movie.ui;
 
 
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.ContentValues;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.GridLayoutManager;
-
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import java.util.List;
 
 import elmajdma.movie.R;
+import elmajdma.movie.adapters.MovieRecylcerViewAdapter;
 import elmajdma.movie.data.local.Movie;
 import elmajdma.movie.utils.CalcFittedColumn;
 import elmajdma.movie.utils.InternetCheck;
-import elmajdma.movie.utils.MovieRecylcerViewAdapter;
 import elmajdma.movie.viewmodel.MoviesViewModel;
 
 import static elmajdma.movie.ui.MainActivity.MENU_SELECTED;
@@ -40,6 +38,9 @@ public class MoviesListFragment extends Fragment {
     private MovieRecylcerViewAdapter movieRecylcerViewAdapter;
     private MoviesViewModel viewModel;
     private InternetCheck internetCheck;
+    private ContentValues mContentValues = new ContentValues();
+
+
 
     public MoviesListFragment() {
         // Required empty public constructor
@@ -82,12 +83,23 @@ public class MoviesListFragment extends Fragment {
         return view;
     }
     private void initViews(View view) {
-        moviesRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_movies);
+        moviesRecyclerView = view.findViewById(R.id.recyclerview_movies);
+        GridLayoutManager layoutManager;
         int mNoOfColumns = CalcFittedColumn.calculateNoOfColumns(getActivity());
-        GridLayoutManager layoutManager
-                = new GridLayoutManager(getActivity(), mNoOfColumns);
+        layoutManager = new GridLayoutManager(getActivity(), mNoOfColumns);
         moviesRecyclerView.setLayoutManager(layoutManager);
         moviesRecyclerView.setHasFixedSize(true);
+
+        /*if(getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
+            int mNoOfColumns = CalcFittedColumn.calculateNoOfColumns(getActivity());
+            layoutManager = new GridLayoutManager(getActivity(), mNoOfColumns);
+        }
+        else{
+            int mNoOfColumns = CalcFittedColumn.calculateNoOfColumns(getActivity());
+            layoutManager = new GridLayoutManager(getActivity(), mNoOfColumns);
+        }*/
+
+
 
     }
 
@@ -103,6 +115,8 @@ public class MoviesListFragment extends Fragment {
             public void onMovieClick(int position, View v) {
                 Movie movie=movieList.get(position);
                viewModel.setMovieDetails(movie.getId());
+                viewModel.setMovieTrialer(movie.getId());
+                //mContentValues.put("")
                 setDetailedFragment();
             }
         };

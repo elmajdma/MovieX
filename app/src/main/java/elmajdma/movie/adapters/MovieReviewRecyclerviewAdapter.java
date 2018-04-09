@@ -1,23 +1,17 @@
-package elmajdma.movie.utils;
+package elmajdma.movie.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import elmajdma.movie.R;
-import elmajdma.movie.data.local.Movie;
 import elmajdma.movie.data.model.MovieReviews;
 
 /**
@@ -29,14 +23,16 @@ public class MovieReviewRecyclerviewAdapter extends RecyclerView.Adapter<Recycle
     private Context context;
 
 
-
-
+    public MovieReviewRecyclerviewAdapter(List<MovieReviews> movieReviewslist, Context context) {
+        this.movieReviewslist = movieReviewslist;
+        this.context = context;
+    }
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View movieReviesView = inflater.inflate(R.layout.movie_review, parent, false);
+        View movieReviesView = inflater.inflate(R.layout.review_item, parent, false);
         RecyclerView.ViewHolder viewHolder=new MovieReviewViewHolder(movieReviesView);
         return viewHolder;
     }
