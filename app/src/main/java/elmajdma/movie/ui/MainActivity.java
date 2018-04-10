@@ -29,17 +29,12 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import elmajdma.movie.R;
 import elmajdma.movie.utils.InternetCheck;
-import elmajdma.movie.viewmodel.MoviesViewModel;
 
 public class MainActivity extends AppCompatActivity implements LifecycleObserver {
     public final static String MENU_SELECTED = "selected";
     private static final String TOP_RATED = "top_rated";
     private static final String POPULAR = "popular";
-    private String selectedCategory = null;
-    private MoviesViewModel viewModel;
-    private InternetCheck internetCheck;
     private Drawer result = null;
-    private AccountHeader headerResult = null;
     private Toolbar mMovieToolbar;
     private FrameLayout fragmentLoader;
     private TextView noInternetMassage;
@@ -52,18 +47,18 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         setSupportActionBar(mMovieToolbar);
         mMovieToolbar.hideOverflowMenu();
         setDrawer(savedInstanceState);
-        internetCheck = new InternetCheck(new InternetCheck.Consumer() {
+        InternetCheck internetCheck = new InternetCheck(new InternetCheck.Consumer() {
             @Override
             public void accept(Boolean internet) {
-                        if(!internet){
-                            fragmentLoader.setVisibility(View.INVISIBLE);
-                            noInternetMassage.setText(R.string.no_internet);
-                            noInternetMassage.setVisibility(View.VISIBLE);
-                        }else{
-                            if (savedInstanceState == null) {
-                                //this may appear redundant I wil develop it later to show tv or combination of tv +movie
-                                setRequestedMovieList(TOP_RATED);
-                            }
+                if (!internet) {
+                    fragmentLoader.setVisibility(View.INVISIBLE);
+                    noInternetMassage.setText(R.string.no_internet);
+                    noInternetMassage.setVisibility(View.VISIBLE);
+                } else {
+                    if (savedInstanceState == null) {
+                        //this may appear redundant I wil develop it later to show tv or combination of tv +movie
+                        setRequestedMovieList(TOP_RATED);
+                    }
                 }
             }
         });
@@ -71,22 +66,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
     }
 
-    /* @Override
-     protected void onSaveInstanceState(Bundle outState) {
-         super.onSaveInstanceState(outState);
-         if (selectedCategory == null) {
-             outState.putString(MENU_SELECTED, POPULAR);
-         } else {
-             outState.putString(MENU_SELECTED, selectedCategory);
-         }
-     }
-
-     @Override
-     protected void onRestoreInstanceState(Bundle savedInstanceState) {
-         selectedCategory = savedInstanceState.getString(MENU_SELECTED);
-         //getMovieData(selectedCategory);
-         super.onRestoreInstanceState(savedInstanceState);
-     }*/
     private void initViews() {
         mMovieToolbar = findViewById(R.id.toolbar_movie);
         noInternetMassage = findViewById(R.id.tv_no_iternet_connection);

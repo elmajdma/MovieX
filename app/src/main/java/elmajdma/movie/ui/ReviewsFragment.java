@@ -4,6 +4,7 @@ package elmajdma.movie.ui;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,6 +25,8 @@ import elmajdma.movie.viewmodel.MoviesViewModel;
  * A simple {@link Fragment} subclass.
  */
 public class ReviewsFragment extends Fragment {
+    private static final String BUNDLE_RECYCLEBR_LAYOUT = "recycler_layout";
+    private Parcelable savedRecyclerLayoutState;
     private RecyclerView reviewsRecyclerView;
     private MovieReviewRecyclerviewAdapter movieReviewRecyclerviewAdapter;
     private MoviesViewModel viewModel;
@@ -34,11 +37,28 @@ public class ReviewsFragment extends Fragment {
     }
 
     @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+
+        //restore recycler view at same position
+        if (savedInstanceState != null) {
+            savedRecyclerLayoutState = savedInstanceState.getParcelable(BUNDLE_RECYCLEBR_LAYOUT);
+            reviewsRecyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
+        }
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(BUNDLE_RECYCLEBR_LAYOUT, reviewsRecyclerView.getLayoutManager().onSaveInstanceState());
+
+    }
+
+    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         viewModel = ViewModelProviders.of(getActivity()).get(MoviesViewModel.class);
-        //Bundle bundle=this.getArguments();
-        //getMovieData(bundle.getString(MENU_SELECTED));
         viewModel.getSelectedMovieReviews().observe(this, new Observer<List<MovieReviews>>() {
             @Override
             public void onChanged(@Nullable List<MovieReviews> movieReviews) {
@@ -51,19 +71,7 @@ public class ReviewsFragment extends Fragment {
                     reviewsRecyclerView.setVisibility(View.VISIBLE);
                     tvNoReviews.setVisibility(View.INVISIBLE);
                     setReviewRecyclerView(movieReviews);
-
                 }
-
-
-            }
-        });
-    }
-
-    public void getMovieData(String movieCategory) {
-        viewModel.getSelectedMovieReviews().observe(this, new Observer<List<MovieReviews>>() {
-            @Override
-            public void onChanged(@Nullable List<MovieReviews> movieReviews) {
-                setReviewRecyclerView(movieReviews);
             }
         });
     }
@@ -76,19 +84,21 @@ public class ReviewsFragment extends Fragment {
         initViews(view);
         return view;
     }
-
     private void initViews(View view) {
-        tvNoReviews = view.findViewById(R.id.tv_no_reviews);
 
+        tvNoReviews = view.findViewById(R.id.tv_no_reviews);
         reviewsRecyclerView = view.findViewById(R.id.recyclerview_reviews);
-        reviewsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        reviewsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         reviewsRecyclerView.setHasFixedSize(true);
     }
-
     private void setReviewRecyclerView(List<MovieReviews> movieReviewslist) {
-        //Toast.makeText(getContext(),movieReviewslist.toString(),Toast.LENGTH_LONG).show();
         movieReviewRecyclerviewAdapter =
-                new MovieReviewRecyclerviewAdapter(movieReviewslist, getContext());
+                new MovieReviewRecyclerviewAdapter(movieReviewslist, getActivity());
+
         reviewsRecyclerView.setAdapter(movieReviewRecyclerviewAdapter);
+        if (savedRecyclerLayoutState != null) {
+            reviewsRecyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
+        }
+
     }
 }

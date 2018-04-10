@@ -15,11 +15,16 @@ public class CalcFittedColumn {
         Log.i("dp", String.valueOf(displayMetrics.density));
         Log.i("dpWidth", String.valueOf(dpWidth));
         float dpImage=(185*160)/displayMetrics.densityDpi;
+        //int scalingFactor = 180;
         Log.i("dpdensityDpi", String.valueOf(displayMetrics.densityDpi));
         Log.i("dpImage", String.valueOf(dpImage));
         //float dpWidth = 185 / displayMetrics.density;
        // dp = px / (dpi / 160)
 
-        return (int) (dpWidth/dpImage);
+        int noOfColumns = (int) (dpWidth / dpImage);
+        if (noOfColumns < 2)
+            noOfColumns = 2;
+        return noOfColumns;
     }
+
 }
