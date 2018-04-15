@@ -34,7 +34,11 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
     public final static String MENU_SELECTED = "selected";
     private static final String TOP_RATED = "top_rated";
     private static final String POPULAR = "popular";
+    private static final String HOME = "home";
+    private static final String FAVORITE = "favorite";
+    private String movieCategory = null;
     private Drawer result = null;
+    private InternetCheck internetCheck;
     private Toolbar mMovieToolbar;
     private FrameLayout fragmentLoader;
     private TextView noInternetMassage;
@@ -47,29 +51,15 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
         setSupportActionBar(mMovieToolbar);
         mMovieToolbar.hideOverflowMenu();
         setDrawer(savedInstanceState);
-        InternetCheck internetCheck = new InternetCheck(new InternetCheck.Consumer() {
-            @Override
-            public void accept(Boolean internet) {
-                if (!internet) {
-                    fragmentLoader.setVisibility(View.INVISIBLE);
-                    noInternetMassage.setText(R.string.no_internet);
-                    noInternetMassage.setVisibility(View.VISIBLE);
-                } else {
-                    if (savedInstanceState == null) {
-                        //this may appear redundant I wil develop it later to show tv or combination of tv +movie
-                        setRequestedMovieList(TOP_RATED);
-                    }
-                }
-            }
-        });
 
-
+        if (savedInstanceState == null) {
+            setrequestedFragment(TOP_RATED);
+        }
     }
 
     private void initViews() {
         mMovieToolbar = findViewById(R.id.toolbar_movie);
-        noInternetMassage = findViewById(R.id.tv_no_iternet_connection);
-        noInternetMassage.setVisibility(View.GONE);
+
         fragmentLoader = findViewById(R.id.fragment_loader);
 
     }
@@ -86,26 +76,16 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
 
         switch (item.getItemId()) {
             case R.id.popular:
-                //selectedCategory = POPULAR;
-                setRequestedMovieList(POPULAR);
+                // movieCategory = POPULAR;
+                setrequestedFragment(POPULAR);
                 return true;
             case R.id.top_rated:
-
-                setRequestedMovieList(TOP_RATED);
+                // movieCategory=TOP_RATED;
+                setrequestedFragment(TOP_RATED);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-
-    public void setRequestedMovieList(String category) {
-        Bundle bundle = new Bundle();
-        bundle.putString(MENU_SELECTED, category);
-        MoviesListFragment moviesListFragment = new MoviesListFragment();
-        moviesListFragment.setArguments(bundle);
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_loader, moviesListFragment).commit();
     }
 
     private void setDrawer(Bundle savedInstanceState) {
@@ -135,12 +115,19 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                 //those items don't contain a drawerItem
 
                 if (drawerItem != null) {
-
-                    if (drawerItem.getIdentifier() == 2001) {
-                        setRequestedMovieList(TOP_RATED);
+                    if (drawerItem.getIdentifier() == 1) {
+                        movieCategory = HOME;
+                        setrequestedFragment(HOME);
+                    } else if (drawerItem.getIdentifier() == 2001) {
+                        movieCategory = TOP_RATED;
+                        setrequestedFragment(TOP_RATED);
                     } else if (drawerItem.getIdentifier() == 2002) {
-                        setRequestedMovieList(POPULAR);
+                        movieCategory = POPULAR;
+                        setrequestedFragment(POPULAR);
                     } else if (drawerItem.getIdentifier() == 4) {
+                        //savedInstanceState.putString(MENU_SELECTED,FAVORITE);
+                        //setRequestedMovieList(FAVORITE);
+                        movieCategory = FAVORITE;
                         setFavoirteFragment();
                     }
                 }
@@ -186,6 +173,39 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                 android.R.anim.fade_out);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
+    }
+
+    private void setrequestedFragment(String categorySelected) {
+        internetCheck = new InternetCheck(new InternetCheck.Consumer() {
+            @Override
+            public void accept(Boolean internet) {
+
+                if (!internet) {
+                    Fragment fragment = new NoInternetConnectionFragment();
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.fragment_loader, fragment);
+                    fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,
+                            android.R.anim.fade_out);
+                    fragmentTransaction.commit();
+
+                } else {
+                    Bundle bundle = new Bundle();
+                    bundle.putString(MENU_SELECTED, categorySelected);
+                    MoviesListFragment moviesListFragment = new MoviesListFragment();
+                    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                    moviesListFragment.setArguments(bundle);
+                    fragmentTransaction.replace(R.id.fragment_loader, moviesListFragment);
+                    fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,
+                            android.R.anim.fade_out);
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.commit();
+
+                }
+
+            }
+        });
+
     }
 
 }

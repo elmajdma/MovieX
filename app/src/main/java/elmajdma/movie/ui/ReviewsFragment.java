@@ -31,7 +31,7 @@ public class ReviewsFragment extends Fragment {
     private MovieReviewRecyclerviewAdapter movieReviewRecyclerviewAdapter;
     private MoviesViewModel viewModel;
     private TextView tvNoReviews;
-
+    private List<MovieReviews> movieReviewSelected;
     public ReviewsFragment() {
         // Required empty public constructor
     }
@@ -45,7 +45,6 @@ public class ReviewsFragment extends Fragment {
             savedRecyclerLayoutState = savedInstanceState.getParcelable(BUNDLE_RECYCLEBR_LAYOUT);
             reviewsRecyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
         }
-
     }
 
     @Override
@@ -55,6 +54,7 @@ public class ReviewsFragment extends Fragment {
 
     }
 
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -62,13 +62,16 @@ public class ReviewsFragment extends Fragment {
         viewModel.getSelectedMovieReviews().observe(this, new Observer<List<MovieReviews>>() {
             @Override
             public void onChanged(@Nullable List<MovieReviews> movieReviews) {
+                movieReviewSelected = movieReviews;
                 if (movieReviews.isEmpty()) {
-                    reviewsRecyclerView.setVisibility(View.GONE);
+                    reviewsRecyclerView.setVisibility(View.INVISIBLE);
+
                     tvNoReviews.setVisibility(View.VISIBLE);
                     tvNoReviews.setText(R.string.no_reviews);
 
                 } else {
                     reviewsRecyclerView.setVisibility(View.VISIBLE);
+
                     tvNoReviews.setVisibility(View.INVISIBLE);
                     setReviewRecyclerView(movieReviews);
                 }
@@ -82,6 +85,8 @@ public class ReviewsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_reviews, container, false);
         initViews(view);
+
+
         return view;
     }
     private void initViews(View view) {
@@ -94,11 +99,10 @@ public class ReviewsFragment extends Fragment {
     private void setReviewRecyclerView(List<MovieReviews> movieReviewslist) {
         movieReviewRecyclerviewAdapter =
                 new MovieReviewRecyclerviewAdapter(movieReviewslist, getActivity());
-
-        reviewsRecyclerView.setAdapter(movieReviewRecyclerviewAdapter);
         if (savedRecyclerLayoutState != null) {
             reviewsRecyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
         }
+        reviewsRecyclerView.setAdapter(movieReviewRecyclerviewAdapter);
 
     }
 }

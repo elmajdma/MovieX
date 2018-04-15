@@ -4,6 +4,7 @@ package elmajdma.movie.ui;
 import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -28,6 +29,10 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
     private static final String TAG = FavoriteFragment.class.getSimpleName();
     private static final int TASK_LOADER_ID = 0;
     private RecyclerView favoirteRecyclerView;
+
+    private static final String BUNDLE_RECYCLEBR_LAYOUT = "recycler_layout";
+    private Parcelable savedRecyclerLayoutState;
+
     private Toolbar mMovieToolbar;
     private MovieFavoriteRecyclerViewAdapter movieFavoriteRecyclerViewAdapter;
 
@@ -35,17 +40,30 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
         // Required empty public constructor
     }
 
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+
+        //restore recycler view at same position
+        if (savedInstanceState != null) {
+            savedRecyclerLayoutState = savedInstanceState.getParcelable(BUNDLE_RECYCLEBR_LAYOUT);
+            favoirteRecyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
+        }
+
+    }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(BUNDLE_RECYCLEBR_LAYOUT, favoirteRecyclerView.getLayoutManager().onSaveInstanceState());
 
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        getLoaderManager().initLoader(TASK_LOADER_ID, null, this);
         super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(TASK_LOADER_ID, null, this);
+
     }
 
     @Override

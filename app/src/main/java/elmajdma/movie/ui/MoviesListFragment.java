@@ -4,6 +4,7 @@ package elmajdma.movie.ui;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.ContentValues;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -31,9 +32,15 @@ import static elmajdma.movie.ui.MainActivity.MENU_SELECTED;
 public class MoviesListFragment extends Fragment {
     private static final String TOP_RATED = "top_rated";
     private static final String POPULAR = "popular";
+
+    private static final String BUNDLE_RECYCLEBR_LAYOUT = "recycler_layout";
+    private Parcelable savedRecyclerLayoutState;
+
     //private final static String MENU_SELECTED = "selected";
     public final static String MOVIE_ID="movie_id";
+    private List<Movie> moviesList;
     private String selectedCategory = null;
+
     private RecyclerView moviesRecyclerView;
     private MovieRecylcerViewAdapter movieRecylcerViewAdapter;
     private MoviesViewModel viewModel;
@@ -46,30 +53,33 @@ public class MoviesListFragment extends Fragment {
         // Required empty public constructor
     }
 
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+
+        //restore recycler view at same position
+        if (savedInstanceState != null) {
+            savedRecyclerLayoutState = savedInstanceState.getParcelable(BUNDLE_RECYCLEBR_LAYOUT);
+            moviesRecyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
+        }
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(BUNDLE_RECYCLEBR_LAYOUT, moviesRecyclerView.getLayoutManager().onSaveInstanceState());
+
+    }
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         viewModel = ViewModelProviders.of(getActivity()).get(MoviesViewModel.class);
         Bundle bundle=this.getArguments();
         getMovieData(bundle.getString(MENU_SELECTED));
-        //String x=bundle.getString(MENU_SELECTED);
-       /* internetCheck=new InternetCheck(new InternetCheck.Consumer() {
-            @Override
-            public void accept(Boolean internet) {
-                if(!internet){
-                    Toast.makeText(getActivity(),getString(R.string.no_internet),Toast.LENGTH_LONG).show();
 
-
-                }else{
-                    if (savedInstanceState == null) {
-                        getMovieData(POPULAR);
-
-                    }
-
-
-                }
-            }
-        });*/
     }
 
     @Override
@@ -89,18 +99,6 @@ public class MoviesListFragment extends Fragment {
         layoutManager = new GridLayoutManager(getActivity(), mNoOfColumns);
         moviesRecyclerView.setLayoutManager(layoutManager);
         moviesRecyclerView.setHasFixedSize(true);
-
-        /*if(getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
-            int mNoOfColumns = CalcFittedColumn.calculateNoOfColumns(getActivity());
-            layoutManager = new GridLayoutManager(getActivity(), mNoOfColumns);
-        }
-        else{
-            int mNoOfColumns = CalcFittedColumn.calculateNoOfColumns(getActivity());
-            layoutManager = new GridLayoutManager(getActivity(), mNoOfColumns);
-        }*/
-
-
-
     }
 
 
@@ -144,4 +142,5 @@ public class MoviesListFragment extends Fragment {
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
+
 }
