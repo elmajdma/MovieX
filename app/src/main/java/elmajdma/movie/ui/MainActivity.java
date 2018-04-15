@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleObserver
                 if (drawerItem != null) {
                     if (drawerItem.getIdentifier() == 1) {
                         movieCategory = HOME;
-                        setrequestedFragment(HOME);
+                        setrequestedFragment(TOP_RATED);
                     } else if (drawerItem.getIdentifier() == 2001) {
                         movieCategory = TOP_RATED;
                         setrequestedFragment(TOP_RATED);
